@@ -296,7 +296,7 @@ Returns a reference to an array of unrecognized formats.
 
 =head2 add
 
-C<add> expects a single integer greather than or equal to 0 (though 0 would be
+C<add> expects a single integer greater than or equal to 0 (though 0 would be
 kind of useless).
 
 This is the number of days into the future you are looking for.
