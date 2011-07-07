@@ -10,23 +10,7 @@ use DateTime;
 use DateTime::Event::Holiday::US;
 use DateTime::Format::Flexible;
 
-# VERSION
-
-=method new( [\%HASH] )
-
-With no arguments an empty object is returned.
-
-This method will croak if a non-hash reference is passed to it.
-
-The possible keys for the constructor are any of the available methods below,
-except for C<add>.  The C<add> method must be called explicitly. Unknown keys
-will be silently ignored.
-
-The values have the same requirement as the matching methods.
-
-Returns a C<DateTimeX::Duration::SkipDays> object.
-
-=cut
+our $VERSION = '0.001';  # VERSION
 
 sub new {
 
@@ -53,16 +37,7 @@ sub new {
 
   return $self;
 
-}
-
-=method start_date( DateTime )
-
-C<start_date> is expecting a L<DateTime> object. This will be used as the
-starting point for calculations.
-
-Returns true on success.
-
-=cut
+} ## end sub new
 
 sub start_date {
 
@@ -77,52 +52,15 @@ sub start_date {
 
 }
 
-=method days_to_skip
-
-C<days_to_skip> accepts any object, or array of objects that will be added to the
-current list of days to be skipped.
-
-Currently, L<DateTime>, L<DateTime::Span>, L<DateTime::Set>,
-L<DateTime::Set::ICal> and L<DateTime::SpanSet> are known to work.  Anything
-that can be used with L<DateTime::Set>'s union method should work.
-
-Returns true on success
-
-=cut
-
 sub days_to_skip {
 
   my ( $self, @days_to_skip ) = @_;
 
-  $self->{ 'days_to_skip' } = $self->{ 'days_to_skip' }->union( $_ )
-    for @days_to_skip;
+  $self->{ 'days_to_skip' } = $self->{ 'days_to_skip' }->union( $_ ) for @days_to_skip;
 
   return 1;
 
 }
-
-=method parse_dates( $SCALAR )
-
-C<parse_dates> is expecting a scalar that has a newline separated list of
-dates.  The text can contain any of the following:
-
-=over
-
-=item A holiday known to L<DateTime::Event::Holiday::US>
-
-=item A RRULE -- L<DateTime::Format::ICal> is being used to parse this input
-
-=item A formatted, or partially formatted, date string --
-L<DateTime::Format::Flexible> is being used to parse this input.
-
-=back
-
-Returns true on success or false on failure.
-
-Any line that is not recognized is silently ignored.  Check C<bad_format> for
-a list of unknown formats.
-
-=cut
 
 sub parse_dates {
 
@@ -145,13 +83,18 @@ sub parse_dates {
 
       $dt = DateTime::Format::ICal->parse_recurrence( 'recurrence' => $line );
 
-    } elsif ( grep { /$line/ } @known_holidays ) {
+    } elsif (
+      grep {
+        /$line/
+      } @known_holidays
+      )
+    {
 
       $dt = DateTime::Event::Holiday::US::holiday( $line );
 
     } else {
 
-      eval { no warnings 'uninitialized' ; $dt = DateTime::Format::Flexible->parse_datetime( $line ) };
+      eval { no warnings 'uninitialized'; $dt = DateTime::Format::Flexible->parse_datetime( $line ) };
 
       if ( $@ ) {
 
@@ -163,35 +106,13 @@ sub parse_dates {
 
     $self->days_to_skip( $dt );
 
-  }
+  } ## end for my $line ( split...)
 
   return 1;
 
-}
+} ## end sub parse_dates
 
-=method bad_format
-
-Returns a reference to an array of unrecognized formats.
-
-=cut
-
-sub bad_format { return wantarray ? keys %{ $_[0]->{ 'bad_format' } } : $_[0]->{ 'bad_format' } }
-
-=method add
-
-C<add> expects a single integer greather than or equal to 0 (though 0 would be
-kind of useless).
-
-This is the number of days into the future you are looking for.
-
-The C<start_date> and C<days_to_skip> values need to have been populated or
-this method will croak.
-
-In array context a reference to a L<DateTime::Span> object and
-a L<DateTime::SpanSet> object is returned, otherwise a reference to a hash with
-those objects as values is returned.
-
-=cut
+sub bad_format { return wantarray ? keys %{ $_[ 0 ]->{ 'bad_format' } } : $_[ 0 ]->{ 'bad_format' } }
 
 sub add {
 
@@ -211,8 +132,8 @@ sub add {
     unless exists $self->{ 'days_to_skip' };
 
   my $duration = DateTime::Duration->new( 'days' => $x );
-  my $span     = DateTime::Span->from_datetime_and_duration( 'start' => $self->{ 'start_date' }, 'duration' => $duration );
-  my $skipped  = $span->intersection( $self->{ 'days_to_skip' } );
+  my $span = DateTime::Span->from_datetime_and_duration( 'start' => $self->{ 'start_date' }, 'duration' => $duration );
+  my $skipped = $span->intersection( $self->{ 'days_to_skip' } );
 
   my $count = my $new_count = 0;
 
@@ -222,8 +143,8 @@ sub add {
   while ( $count != $new_count ) {
 
     $duration = DateTime::Duration->new( 'days' => $x + $count );
-    $span     = DateTime::Span->from_datetime_and_duration( 'start' => $self->{ 'start_date' }, 'duration' => $duration );
-    $skipped  = $span->intersection( $self->{ 'days_to_skip' } );
+    $span = DateTime::Span->from_datetime_and_duration( 'start' => $self->{ 'start_date' }, 'duration' => $duration );
+    $skipped = $span->intersection( $self->{ 'days_to_skip' } );
 
     $iter = $skipped->iterator;
     my $new_count; $new_count++ while $iter->next;
@@ -235,13 +156,21 @@ sub add {
 
   return wantarray ? ( $span, $skipped ) : { 'span' => $span, 'skipped' => $skipped };
 
-}
+} ## end sub add
 
+1;
+
+__END__
 
 =pod
 
-X<DateTime>
-X<DateTime::Duration>
+=head1 NAME
+
+DateTimeX::Duration::SkipDays - Given a starting date, a number of days and a list of days to be skipped, returns the date X number of days away.
+
+=head1 VERSION
+
+version 0.001
 
 =head1 SYNOPSIS
 
@@ -306,6 +235,95 @@ X<DateTime::Duration>
  # Skipped: 2012-01-07
  # Skipped: 2012-01-08
 
-=cut
+=head1 METHODS
 
-1;
+=head2 new( [\%HASH] )
+
+With no arguments an empty object is returned.
+
+This method will croak if a non-hash reference is passed to it.
+
+The possible keys for the constructor are any of the available methods below,
+except for C<add>.  The C<add> method must be called explicitly. Unknown keys
+will be silently ignored.
+
+The values have the same requirement as the matching methods.
+
+Returns a C<DateTimeX::Duration::SkipDays> object.
+
+=head2 start_date( DateTime )
+
+C<start_date> is expecting a L<DateTime> object. This will be used as the
+starting point for calculations.
+
+Returns true on success.
+
+=head2 days_to_skip
+
+C<days_to_skip> accepts any object, or array of objects that will be added to the
+current list of days to be skipped.
+
+Currently, L<DateTime>, L<DateTime::Span>, L<DateTime::Set>,
+L<DateTime::Set::ICal> and L<DateTime::SpanSet> are known to work.  Anything
+that can be used with L<DateTime::Set>'s union method should work.
+
+Returns true on success
+
+=head2 parse_dates( $SCALAR )
+
+C<parse_dates> is expecting a scalar that has a newline separated list of
+dates.  The text can contain any of the following:
+
+=over
+
+=item A holiday known to L<DateTime::Event::Holiday::US>
+
+=item A RRULE -- L<DateTime::Format::ICal> is being used to parse this input
+
+=item A formatted, or partially formatted, date string --
+L<DateTime::Format::Flexible> is being used to parse this input.
+
+=back
+
+Returns true on success or false on failure.
+
+Any line that is not recognized is silently ignored.  Check C<bad_format> for
+a list of unknown formats.
+
+=head2 bad_format
+
+Returns a reference to an array of unrecognized formats.
+
+=head2 add
+
+C<add> expects a single integer greather than or equal to 0 (though 0 would be
+kind of useless).
+
+This is the number of days into the future you are looking for.
+
+The C<start_date> and C<days_to_skip> values need to have been populated or
+this method will croak.
+
+In array context a reference to a L<DateTime::Span> object and
+a L<DateTime::SpanSet> object is returned, otherwise a reference to a hash with
+those objects as values is returned.
+
+X<DateTime>
+X<DateTime::Duration>
+
+=head1 INSTALLATION
+
+See perlmodinstall for information and options on installing Perl modules.
+
+=head1 AUTHOR
+
+Alan Young <harleypig@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2010 by Alan Young.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

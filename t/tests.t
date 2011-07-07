@@ -15,7 +15,7 @@ BEGIN {
 
 my ( $skip_days, $sd, $span, $skipped, %skipped_days, $iter, $expected_end );
 
-my $skip_weekends  = q(RRULE:FREQ=WEEKLY;BYDAY=SA,SU);
+my $skip_weekends = q(RRULE:FREQ=WEEKLY;BYDAY=SA,SU);
 
 #       July 2011             August 2011
 # Su Mo Tu We Th Fr Sa  Su Mo Tu We Th Fr Sa
@@ -31,10 +31,10 @@ my $start_date     = DateTime->new( 'year' => 2011, 'month' => 7, 'day' => 1 );
 my $start_date_ymd = $start_date->ymd;
 
 # Skip Nothing
-my $temp     = $skip_x_days;
+my $temp = $skip_x_days;
 $skip_x_days = 0;
 
-$sd = DateTimeX::Duration::SkipDays->new({ 'start_date' => $start_date });
+$sd = DateTimeX::Duration::SkipDays->new( { 'start_date' => $start_date } );
 
 if ( keys %{ $sd->bad_format } ) {
 
@@ -110,20 +110,7 @@ check_date( $span->end->ymd,   '2011-08-12',    "Skip weekends - (Skip $skip_x_d
 # 24.25.26.27.28.29 30  28 29 30 31
 # 31
 
-%skipped_days = (
-  '2011-07-02' => 1,
-  '2011-07-03' => 1,
-  '2011-07-09' => 1,
-  '2011-07-10' => 1,
-  '2011-07-16' => 1,
-  '2011-07-17' => 1,
-  '2011-07-23' => 1,
-  '2011-07-24' => 1,
-  '2011-07-30' => 1,
-  '2011-07-31' => 1,
-  '2011-08-06' => 1,
-  '2011-08-07' => 1,
-);
+%skipped_days = ( '2011-07-02' => 1, '2011-07-03' => 1, '2011-07-09' => 1, '2011-07-10' => 1, '2011-07-16' => 1, '2011-07-17' => 1, '2011-07-23' => 1, '2011-07-24' => 1, '2011-07-30' => 1, '2011-07-31' => 1, '2011-08-06' => 1, '2011-08-07' => 1, );
 
 check_skipped_days( $skipped->iterator, \%skipped_days );
 
@@ -153,24 +140,7 @@ check_date( $span->end->ymd,   '2011-08-16',    "Skip combo - (Skip $skip_x_days
 # 24.25.26.27.28.29 30  28 29 30 31
 # 31
 
-%skipped_days = (
-  '2011-07-02' => 1,
-  '2011-07-03' => 1,
-  '2011-07-04' => 1,
-  '2011-07-09' => 1,
-  '2011-07-10' => 1,
-  '2011-07-16' => 1,
-  '2011-07-17' => 1,
-  '2011-07-22' => 1,
-  '2011-07-23' => 1,
-  '2011-07-24' => 1,
-  '2011-07-30' => 1,
-  '2011-07-31' => 1,
-  '2011-08-06' => 1,
-  '2011-08-07' => 1,
-  '2011-08-13' => 1,
-  '2011-08-14' => 1,
-);
+%skipped_days = ( '2011-07-02' => 1, '2011-07-03' => 1, '2011-07-04' => 1, '2011-07-09' => 1, '2011-07-10' => 1, '2011-07-16' => 1, '2011-07-17' => 1, '2011-07-22' => 1, '2011-07-23' => 1, '2011-07-24' => 1, '2011-07-30' => 1, '2011-07-31' => 1, '2011-08-06' => 1, '2011-08-07' => 1, '2011-08-13' => 1, '2011-08-14' => 1, );
 
 check_skipped_days( $skipped->iterator, \%skipped_days );
 
@@ -178,10 +148,7 @@ sub make_sd {
 
   my ( $start_date, $parse_dates ) = @_;
 
-  $sd = DateTimeX::Duration::SkipDays->new({
-    'start_date'  => $start_date,
-    'parse_dates' => $parse_dates,
-  });
+  $sd = DateTimeX::Duration::SkipDays->new( { 'start_date' => $start_date, 'parse_dates' => $parse_dates, } );
 
   if ( keys %{ $sd->bad_format } ) {
 
@@ -226,4 +193,4 @@ sub check_skipped_days {
     pass( 'All expected days skipped' );
 
   }
-}
+} ## end sub check_skipped_days
