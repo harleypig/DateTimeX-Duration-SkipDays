@@ -8,6 +8,7 @@ use warnings;
 use Carp;
 use DateTime;
 use DateTime::Event::Holiday::US;
+use DateTime::Format::Flexible;
 
 # VERSION
 
@@ -36,7 +37,7 @@ sub new {
 
   my $self = bless {}, ref $class || $class;
 
-  $self->{ 'bad_format' }   = [];
+  $self->{ 'bad_format' }   = {};
   $self->{ 'days_to_skip' } = DateTime::Set->empty_set;
 
   for my $key ( keys %$arg ) {
@@ -154,7 +155,7 @@ sub parse_dates {
 
       if ( $@ ) {
 
-        push @{ $self->{ 'bad_format' } }, $line;
+        $self->{ 'bad_format' }{ $line } = $@;
         next;
 
       }
@@ -174,14 +175,14 @@ Returns a reference to an array of unrecognized formats.
 
 =cut
 
-sub bad_format { return $_[0]->{ 'bad_format' } }
+sub bad_format { return wantarray ? keys %{ $_[0]->{ 'bad_format' } } : $_[0]->{ 'bad_format' } }
 
 =method add
 
-C<add> expects a single integer (can be positive or negative, or even 0, though
-that would be kind of useless).
+C<add> expects a single integer greather than or equal to 0 (though 0 would be
+kind of useless).
 
-This is the number of days into the future or past you are looking for.
+This is the number of days into the future you are looking for.
 
 The C<start_date> and C<days_to_skip> values need to have been populated or
 this method will croak.
@@ -196,9 +197,10 @@ sub add {
 
   my ( $self, $x ) = @_;
 
-  # XXX: Need better error handling here
-  croak 'Must provide an integer to add'
-    if $x !~ /^\d+$/;
+  $x += 0;
+
+  croak 'Must provide integer larger than or equal to 0'
+    unless $x >= 0;
 
   # XXX: Need better error handling here
   croak 'No start date provided'
@@ -207,8 +209,6 @@ sub add {
   # XXX: Need better error handling here
   croak 'No days_to_skip provided'
     unless exists $self->{ 'days_to_skip' };
-
-  $DB::single = 1;
 
   my $duration = DateTime::Duration->new( 'days' => $x );
   my $span     = DateTime::Span->from_datetime_and_duration( 'start' => $self->{ 'start_date' }, 'duration' => $duration );
