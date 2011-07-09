@@ -197,7 +197,7 @@ sub add {
 
   my ( $self, $x ) = @_;
 
-  $x += 0;
+  { no warnings 'numeric' ; $x += 0 };
 
   croak 'Must provide integer larger than or equal to 0'
     unless $x >= 0;
