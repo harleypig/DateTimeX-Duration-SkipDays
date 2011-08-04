@@ -53,7 +53,7 @@ sub new {
 
   return $self;
 
-}
+} ## end sub new
 
 =method start_date( DateTime )
 
@@ -94,8 +94,7 @@ sub days_to_skip {
 
   my ( $self, @days_to_skip ) = @_;
 
-  $self->{ 'days_to_skip' } = $self->{ 'days_to_skip' }->union( $_ )
-    for @days_to_skip;
+  $self->{ 'days_to_skip' } = $self->{ 'days_to_skip' }->union( $_ ) for @days_to_skip;
 
   return 1;
 
@@ -145,13 +144,18 @@ sub parse_dates {
 
       $dt = DateTime::Format::ICal->parse_recurrence( 'recurrence' => $line );
 
-    } elsif ( grep { /$line/ } @known_holidays ) {
+    } elsif (
+      grep {
+        /$line/
+      } @known_holidays
+      )
+    {
 
       $dt = DateTime::Event::Holiday::US::holiday( $line );
 
     } else {
 
-      eval { no warnings 'uninitialized' ; $dt = DateTime::Format::Flexible->parse_datetime( $line ) };
+      eval { no warnings 'uninitialized'; $dt = DateTime::Format::Flexible->parse_datetime( $line ) };
 
       if ( $@ ) {
 
@@ -163,11 +167,11 @@ sub parse_dates {
 
     $self->days_to_skip( $dt );
 
-  }
+  } ## end for my $line ( split...)
 
   return 1;
 
-}
+} ## end sub parse_dates
 
 =method bad_format
 
@@ -175,7 +179,7 @@ Returns a reference to an array of unrecognized formats.
 
 =cut
 
-sub bad_format { return wantarray ? keys %{ $_[0]->{ 'bad_format' } } : $_[0]->{ 'bad_format' } }
+sub bad_format { return wantarray ? keys %{ $_[ 0 ]->{ 'bad_format' } } : $_[ 0 ]->{ 'bad_format' } }
 
 =method add
 
@@ -197,7 +201,7 @@ sub add {
 
   my ( $self, $x ) = @_;
 
-  { no warnings 'numeric' ; $x += 0 };
+  { no warnings 'numeric'; $x += 0 };
 
   croak 'Must provide integer larger than or equal to 0'
     unless $x >= 0;
@@ -211,8 +215,8 @@ sub add {
     unless exists $self->{ 'days_to_skip' };
 
   my $duration = DateTime::Duration->new( 'days' => $x );
-  my $span     = DateTime::Span->from_datetime_and_duration( 'start' => $self->{ 'start_date' }, 'duration' => $duration );
-  my $skipped  = $span->intersection( $self->{ 'days_to_skip' } );
+  my $span = DateTime::Span->from_datetime_and_duration( 'start' => $self->{ 'start_date' }, 'duration' => $duration );
+  my $skipped = $span->intersection( $self->{ 'days_to_skip' } );
 
   my $count = my $new_count = 0;
 
@@ -222,8 +226,8 @@ sub add {
   while ( $count != $new_count ) {
 
     $duration = DateTime::Duration->new( 'days' => $x + $count );
-    $span     = DateTime::Span->from_datetime_and_duration( 'start' => $self->{ 'start_date' }, 'duration' => $duration );
-    $skipped  = $span->intersection( $self->{ 'days_to_skip' } );
+    $span = DateTime::Span->from_datetime_and_duration( 'start' => $self->{ 'start_date' }, 'duration' => $duration );
+    $skipped = $span->intersection( $self->{ 'days_to_skip' } );
 
     $iter = $skipped->iterator;
     my $new_count; $new_count++ while $iter->next;
@@ -235,8 +239,7 @@ sub add {
 
   return wantarray ? ( $span, $skipped ) : { 'span' => $span, 'skipped' => $skipped };
 
-}
-
+} ## end sub add
 
 =pod
 

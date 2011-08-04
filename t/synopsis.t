@@ -23,12 +23,9 @@ RRULE:FREQ=WEEKLY;BYDAY=SA,SU
 );
 
 my $skip_x_days = 30;
-my $start_date  = DateTime->new( 'year' => 2011, 'month' => 12, 'day' => 1 );
+my $start_date = DateTime->new( 'year' => 2011, 'month' => 12, 'day' => 1 );
 
-my $s = DateTimeX::Duration::SkipDays->new({
-  'parse_dates'  => $skip_days,
-  'start_date'   => $start_date,
-});
+my $s = DateTimeX::Duration::SkipDays->new( { 'parse_dates' => $skip_days, 'start_date' => $start_date, } );
 
 my ( $span, $skipped ) = $s->add( $skip_x_days );
 
