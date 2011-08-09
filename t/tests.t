@@ -5,7 +5,7 @@ use warnings;
 
 BEGIN {
 
-  use Test::More tests => 45;
+  use Test::More tests => 55;
 
   use_ok( 'DateTime' );
   use_ok( 'DateTimeX::Duration::SkipDays' );
@@ -15,7 +15,43 @@ BEGIN {
 
 my ( $skip_days, $sd, $span, $skipped, %skipped_days, $iter, $expected_end );
 
-my $skip_weekends = q(RRULE:FREQ=WEEKLY;BYDAY=SA,SU);
+# Make sure empty new() returns valid object.
+$sd = DateTimeX::Duration::SkipDays->new();
+isa_ok( $sd, 'DateTimeX::Duration::SkipDays', 'empty new returns valid object' );
+
+# Make sure invalid references cause death.
+eval{ $sd = DateTimeX::Duration::SkipDays->new([]) };
+like( $@, qr/Must pass nothing or a reference to a hash to new/, 'array ref dies correctly' );
+
+eval{ $sd = DateTimeX::Duration::SkipDays->new(\$skipped) };
+like( $@, qr/Must pass nothing or a reference to a hash to new/, 'scalar ref dies correctly' );
+
+eval{ $sd = DateTimeX::Duration::SkipDays->new(sub{}) };
+like( $@, qr/Must pass nothing or a reference to a hash to new/, 'code ref dies correctly' );
+
+# Make sure 'add' included in call to new is ignored.
+$sd = DateTimeX::Duration::SkipDays->new({ 'add' => '1' });
+isa_ok( $sd, 'DateTimeX::Duration::SkipDays', 'hash with add returns valid object' );
+
+# Make sure unkown key is ignored.
+$sd = DateTimeX::Duration::SkipDays->new({ 'badkey' => '1' });
+isa_ok( $sd, 'DateTimeX::Duration::SkipDays', 'hash with bad key returns valid object' );
+
+# Make sure start_date doesn't work with anything but a DateTime object.
+eval{ $sd->start_date( 'monkey' ) };
+like( $@, qr/Must pass a DateTime object to start/, 'start_date dies correctly' );
+
+# Make sure parse_dates dies with anything but a scalar.
+eval{ $sd->parse_dates( {} )};
+like( $@, qr/Expected scalar/, 'parse_dates dies correctly' );
+
+# Make sure parse dates bad formats correctly.
+$sd->parse_dates( 'bad format' );
+my $bf = $sd->bad_formats;
+isa_ok( $bf, 'ARRAY' );
+is( $bf->[0], 'bad format' );
+
+my $skip_weekends  = q(RRULE:FREQ=WEEKLY;BYDAY=SA,SU);
 
 #       July 2011             August 2011
 # Su Mo Tu We Th Fr Sa  Su Mo Tu We Th Fr Sa
