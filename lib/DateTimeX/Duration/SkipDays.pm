@@ -159,7 +159,9 @@ sub parse_dates {
 
       if ( $@ ) {
 
-        $self->{ 'bad_format' }{ $line } = $@;
+        ( my $err = $@ ) =~ s/^(Invalid date format: $line).*$/$1/ms;
+
+        $self->{ 'bad_format' }{ $line } = $err;
         next;
 
       }
