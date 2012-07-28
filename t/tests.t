@@ -94,6 +94,7 @@ for my $key ( keys %bad_format ) {
 
   my $bf = DateTimeX::Duration::SkipDays->new();
 
+#  $DB::single = 1;
   $bf->parse_dates( $bad_format{ $key }{ dates } );
   my @array = sort $bf->bad_format;
   my @check = sort @{ $bad_format{ $key }{ check_array } };
@@ -255,7 +256,7 @@ sub make_sd {
 
 }
 
-sub check_date {
+sub check_date { ## no strict qw( Subroutines::RequireFinalReturn )
 
   my ( $got, $expected, $note ) = @_;
 
@@ -264,12 +265,13 @@ sub check_date {
 
 }
 
-sub check_skipped_days {
+sub check_skipped_days { ## no strict qw( Subroutines::RequireFinalReturn )
 
   my ( $iter, $skipped_days ) = @_;
 
   while ( my $dt = $iter->next ) {
 
+    ## no critic qw( ValuesAndExpressions::ProhibitAccessOfPrivateData )
     my $dt_ymd = $dt->min->ymd;
     ok( exists $skipped_days->{ $dt_ymd }, "Skipped $dt_ymd" );
     delete $skipped_days->{ $dt_ymd };

@@ -3,4 +3,4 @@ Revision history for {{ $dist->name }}
 {{$NEXT}}
   - Updated dist.ini to what I'm currently using
   - Started using Changes file
-
+  - Made tests work, and pass

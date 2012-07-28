@@ -1,7 +1,10 @@
 package DateTimeX::Duration::SkipDays;
 
+# # no critic qw( Modules::RequireExplicitInclusion )
+
 # ABSTRACT: Given a starting date, a number of days and a list of days to be skipped, returns the date X number of days away.
 
+use 5.006;
 use strict;
 use warnings;
 
@@ -9,6 +12,12 @@ use Carp;
 use DateTime;
 use DateTime::Event::Holiday::US;
 use DateTime::Format::Flexible;
+use Try::Tiny;
+use List::MoreUtils 'any';
+
+# The circular::require test is having problems with one or more of the above modules, so we'll skip it.
+
+## efm skip circular
 
 # VERSION
 
@@ -32,20 +41,21 @@ sub new {
 
   my ( $class, $arg ) = @_;
 
-  croak "Must pass nothing or a reference to a hash to new"
+  croak 'Must pass nothing or a reference to a hash to new'
     if ref $arg && ref $arg ne 'HASH';
 
-  my $self = bless {}, ref $class || $class;
+  my $self = bless {}, $class;
 
   $self->{ 'bad_format' }   = {};
   $self->{ 'days_to_skip' } = DateTime::Set->empty_set;
 
-  for my $key ( keys %$arg ) {
+  for my $key ( keys %$arg ) { ## no critic qw( References::ProhibitDoubleSigils )
 
     next if $key eq 'add';
 
     if ( my $method = $self->can( $key ) ) {
 
+      ## no critic qw( ValuesAndExpressions::ProhibitAccessOfPrivateData )
       $self->$method( $arg->{ $key } );
 
     }
@@ -68,7 +78,7 @@ sub start_date {
 
   my ( $self, $start_date ) = @_;
 
-  croak "Must pass a DateTime object to start"
+  croak 'Must pass a DateTime object to start'
     if ref $start_date ne 'DateTime';
 
   $self->{ 'start_date' } = $start_date->clone->truncate( 'to' => 'day' );
@@ -127,7 +137,7 @@ sub parse_dates {
 
   my ( $self, $skip_dates ) = @_;
 
-  croak "Expected scalar"
+  croak 'Expected scalar'
     if ref $skip_dates;
 
   my @known_holidays = DateTime::Event::Holiday::US::known();
@@ -144,18 +154,17 @@ sub parse_dates {
 
       $dt = DateTime::Format::ICal->parse_recurrence( 'recurrence' => $line );
 
-    } elsif (
-      grep {
-        /$line/
-      } @known_holidays
-      )
-    {
+      ## no tidy
+    } elsif ( any { /$line/ } @known_holidays ) {
+      ## use tidy
 
       $dt = DateTime::Event::Holiday::US::holiday( $line );
 
     } else {
 
+      ## no critic qw( TestingAndDebugging::ProhibitNoWarnings ErrorHandling::RequireCheckingReturnValueOfEval )
       eval { no warnings 'uninitialized'; $dt = DateTime::Format::Flexible->parse_datetime( $line ) };
+      ## use critic
 
       if ( $@ ) {
 
@@ -165,7 +174,23 @@ sub parse_dates {
         next;
 
       }
-    }
+
+      # This fails with
+      # Can't call method "can" on an undefined value at /usr/local/share/perl/5.10.1/DateTime/Set.pm line 593.
+      # and I don't have time to figure out what's wrong. So, the above is going to have to do.
+      #
+      #try {
+      #
+      #  $dt = DateTime::Format::Flexible->parse_datetime( $line );
+      #
+      #} catch {
+      #
+      #  ( my $err = $_ ) =~ s/^(Invalid date format: $line).*$/$1/ms;
+      #
+      #  $self->{ 'bad_format' }{ $line } = $err;
+      #
+      #}
+    } ## end else [ if ( $line =~ /^RRULE:/i)]
 
     $self->days_to_skip( $dt );
 
@@ -181,7 +206,9 @@ Returns a reference to an array of unrecognized formats.
 
 =cut
 
-sub bad_format { return wantarray ? keys %{ $_[ 0 ]->{ 'bad_format' } } : $_[ 0 ]->{ 'bad_format' } }
+sub bad_format { ## no critic qw( Subroutines::RequireArgUnpacking )
+  return wantarray ? keys %{ $_[0]->{ 'bad_format' } } : $_[0]->{ 'bad_format' };
+}
 
 =method add
 
@@ -203,10 +230,10 @@ sub add {
 
   my ( $self, $x ) = @_;
 
-  { no warnings 'numeric'; $x += 0 };
+  { no warnings 'numeric'; $x += 0 } ## no critic qw( TestingAndDebugging::ProhibitNoWarnings )
 
   croak 'Must provide integer larger than or equal to 0'
-    unless $x >= 0;
+    if $x < 0;
 
   # XXX: Need better error handling here
   croak 'No start date provided'
@@ -239,6 +266,7 @@ sub add {
 
   }
 
+  ## no critic qw( ValuesAndExpressions::ProhibitCommaSeparatedStatements )
   return wantarray ? ( $span, $skipped ) : { 'span' => $span, 'skipped' => $skipped };
 
 } ## end sub add

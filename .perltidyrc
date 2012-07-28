@@ -1,55 +1,72 @@
-########################################## NOTE:
-#
-# I like to use structures like the following:
-#
-# $hash{ $_ } = "somestring" for @array;
-#
-# PerlTidy doesn't like this.  I made this work by modifying the code.  Please
-# see https://github.com/harleypig/Perl-Tidy to see how I've mangled the code.
-
 ##########################################
 # Basic Options
 
---maximum-line-length=0
+--maximum-line-length=132
 --indent-columns=2
 --notabs
-#--check-syntax
+
+--nocheck-syntax
 #--perl-syntax-check-flags="-c"
+
+#--indent-only
+## is the same as setting all of these:
+#--freeze-newlines
+#--freeze-whitespace
+
+#--output-line-endings=unix
+#--preserve-line-endings
+
+#--iterations=1
 
 ##########################################
 # Code Indentation Control
 
 --continuation-indentation=2
+#--starting-indentation-level=0
+
 --noline-up-parentheses
 
 --closing-token-indentation=0
-
-# The above is the same as setting all of these:
+# is the same as setting all of these:
 #--closing-paren-indentation=0
 #--closing-square-bracket-indentation=0
 #--closing-brace-indentation=0
 
---noindent-closing-paren
+# deprecated
+#--noindent-closing-paren
+
 --noindent-closing-brace
+
+# deprecated
+#--no-outdent-long-lines
+# is the same as setting all of these:
 --nooutdent-long-quotes
+#--nooutdent-long-comments
+
 --nooutdent-labels
 --nooutdent-keywords
 
 ##########################################
 # Whitespace Controls
 
+#--freeze-whitespace
+
 --paren-tightness=0
---square-bracket-tightness=0
+--square-bracket-tightness=1
 --brace-tightness=0
 --block-brace-tightness=0
+
 --nospace-terminal-semicolon
 --space-for-semicolon
 --add-semicolons
 --delete-semicolons
 --add-whitespace
 --delete-old-whitespace
+
+#--want-left-space=???
 --want-right-space="!"
 --nospace-after-keyword="chomp"
+--nospace-keyword-paren
 --nospace-function-paren
 --trim-qw
 
@@ -59,14 +76,17 @@
 --indent-block-comments
 --nooutdent-long-comments
 --minimum-space-to-comment=2
+#--fixed-position-side-comment=40
 --hanging-side-comments
+
 --closing-side-comments
---closing-side-comment-list="if elsif else unless for foreach sub while until : try catch"
 --closing-side-comment-interval=18
---closing-side-comment-prefix="## end"
 --closing-side-comment-maximum-text=15
---closing-side-comment-else-flag=0
 --closing-side-comments-balanced
+--closing-side-comment-prefix="## end"
+--closing-side-comment-list="if elsif else unless for foreach sub while until : try catch BEGIN END"
+--closing-side-comment-else-flag=0
+
 --static-block-comments
 --static-block-comment-prefix="##"
 --nooutdent-static-block-comments
@@ -77,8 +97,8 @@
 # Skipping Selected Sections of Code
 
 --format-skipping
---format-skipping-begin="## BEGIN UNTIDY"
---format-skipping-end="## END UNTIDY"
+--format-skipping-begin="## no tidy"
+--format-skipping-end="## use tidy"
 
 ##########################################
 # Line Break Control
@@ -89,25 +109,22 @@
 --noopening-sub-brace-on-new-line
 --noopening-anonymous-sub-brace-on-new-line
 --nobrace-left-and-indent
---noopening-brace-always-on-right
+--opening-brace-always-on-right
 
 --opening-token-right
-
-# The above is the same as setting all of these:
+# is the same as setting all of these:
 #--opening-paren-right
 #--opening-hash-brace-right
 #--opening-square-bracket-right
 
 --vertical-tightness=1
-
-# The above is the same as:
+# is the same as:
 #--paren-vertical-tightness=1
 #--square-bracket-vertical-tightness=1
 #--brace-vertical-tightness=1
 
 --vertical-tightness-closing=0
-
-# The above is the same as:
+# is the same as:
 #--paren-vertical-tightness-closing=0
 #--square-bracket-vertical-tightness-closing=0
 #--brace-vertical-tightness-closing=0
@@ -116,15 +133,13 @@
 --block-brace-vertical-tightness-list="if elsif else unless for foreach sub while until : try catch"
 
 --stack-opening-tokens
-
-# The above is the same as:
+# is the same as:
 #--stack-opening-paren
 #--stack-opening-hash-brace
 #--stack-opening-square-bracket
 
 --stack-closing-tokens
-
-# The above is the same as:
+# is the same as:
 #--stack-closing-paren
 #--stack-closing-hash-brace
 #--stack-closing-square-bracket
