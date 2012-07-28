@@ -9,7 +9,7 @@ BEGIN {
 
 
 use Test::More;
-
-eval "use Test::CPAN::Meta";
-plan skip_all => "Test::CPAN::Meta required for testing META.yml" if $@;
-meta_yaml_ok();
+eval 'use Test::CPAN::Changes';
+plan skip_all => 'Test::CPAN::Changes required for this test' if $@;
+changes_ok();
+done_testing();

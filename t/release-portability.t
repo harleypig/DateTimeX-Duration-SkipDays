@@ -10,6 +10,7 @@ BEGIN {
 
 use Test::More;
 
-eval "use Test::CPAN::Meta";
-plan skip_all => "Test::CPAN::Meta required for testing META.yml" if $@;
-meta_yaml_ok();
+eval 'use Test::Portability::Files';
+plan skip_all => 'Test::Portability::Files required for testing portability'
+  if $@;
+run_tests();

@@ -4,7 +4,7 @@
       "Alan Young <harleypig@gmail.com>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.200008, CPAN::Meta::Converter version 2.110930",
+   "generated_by" : "Dist::Zilla version 4.300020, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "perl_5"
    ],
@@ -32,43 +32,31 @@
       },
       "runtime" : {
          "requires" : {
-            "Carp" : 0,
-            "DateTime" : 0,
-            "DateTime::Event::Holiday::US" : 0,
-            "DateTime::Format::Flexible" : 0
+            "Carp" : "0",
+            "DateTime" : "0",
+            "DateTime::Event::Holiday::US" : "0",
+            "DateTime::Format::Flexible" : "0",
+            "List::MoreUtils" : "0",
+            "Try::Tiny" : "0",
+            "perl" : "5.006",
+            "strict" : "0",
+            "warnings" : "0"
          }
       },
       "test" : {
          "requires" : {
-            "English" : 0,
-            "File::Find" : 0,
-            "File::Temp" : 0,
-            "Path::Class" : 0,
-            "Scalar::Util" : 0,
+            "File::Find" : "0",
+            "File::Temp" : "0",
+            "Scalar::Util" : "0",
+            "Test::CheckDeps" : "0.002",
+            "Test::Deep" : "0",
             "Test::More" : "0.94",
-            "Test::Perl::Critic::Progressive" : 0,
-            "Try::Tiny" : 0,
-            "perl" : "5.004"
+            "Test::NoWarnings" : "0",
+            "Test::UseAllModules" : "0"
          }
       }
    },
-   "provides" : {
-      "DateTimeX::Duration::SkipDays" : {
-         "file" : "lib/DateTimeX/Duration/SkipDays.pm",
-         "version" : "0.001"
-      }
-   },
    "release_status" : "stable",
-   "resources" : {
-      "bugtracker" : {
-         "web" : "https://github.com/harleypig/datetimex-duration-skipdays/issues"
-      },
-      "repository" : {
-         "type" : "git",
-         "url" : "git://github.com/harleypig/datetimex-duration-skipdays.git",
-         "web" : "https://github.com/harleypig/datetimex-duration-skipdays"
-      }
-   },
-   "version" : "0.001"
+   "version" : "0.002"
 }
 

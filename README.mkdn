@@ -124,10 +124,10 @@ Returns a reference to an array of unrecognized formats.
 
 ## add
 
-`add` expects a single integer greater than or equal to 0 (though 0 would be
-kind of useless).
+`add` expects a single integer (can be positive or negative, or even 0, though
+that would be kind of useless).
 
-This is the number of days into the future you are looking for.
+This is the number of days into the future or past you are looking for.
 
 The `start_date` and `days_to_skip` values need to have been populated or
 this method will croak.

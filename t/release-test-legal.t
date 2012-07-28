@@ -1,4 +1,3 @@
-#!perl
 
 BEGIN {
   unless ($ENV{RELEASE_TESTING}) {
@@ -8,8 +7,10 @@ BEGIN {
 }
 
 
+use strict;
+use warnings;
 use Test::More;
+use Test::Requires 'Test::Legal';
 
-eval "use Test::CPAN::Meta";
-plan skip_all => "Test::CPAN::Meta required for testing META.yml" if $@;
-meta_yaml_ok();
+copyright_ok;
+license_ok;
